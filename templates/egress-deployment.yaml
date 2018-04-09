@@ -1,0 +1,43 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-egress
+  labels:
+    app: {{ .Chart.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: egress
+spec:
+  replicas:  {{ .Values.warp10.egress.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+        component: egress
+    spec:
+      containers:
+      - name: egress
+        image: {{ .Values.image.repository }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        # resources:
+        #   requests:
+        #     cpu: 100m
+        #     memory: 100Mi
+        env:
+          - name: WARPENV_WARP_COMPONENTS
+            value: egress
+        resources:
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 7090
+          initialDelaySeconds: 10
+          timeoutSeconds: 2
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 7090
+          initialDelaySeconds: 10
+          timeoutSeconds: 2

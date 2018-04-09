@@ -1,0 +1,20 @@
+# A headless service to create DNS records
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-store
+  labels:
+    app: {{ .Chart.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: store
+spec:
+  clusterIP: "None"
+  ports:
+  - port: 8883
+    name: thriftPort
+  selector:
+    app: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+component: store
